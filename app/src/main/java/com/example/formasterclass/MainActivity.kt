@@ -2,6 +2,7 @@ package com.example.formasterclass
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
@@ -12,15 +13,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.formasterclass.data.RepositoryListViewModel
 import com.example.formasterclass.data.RepositoryModel
 import com.example.formasterclass.data.sampleData
 import com.example.formasterclass.ui.theme.ForMasterClassTheme
@@ -29,28 +39,56 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ListRepositoryView(listRepository = sampleData)
+            val navController = rememberNavController()
+            ForMasterClassTheme {
+                NavHost(navController = navController, startDestination = "listRepository") {
+                    composable("listRepository") {
+                        ListRepositoryView(
+                            navController = navController,
+                            repositoryListViewModel = RepositoryListViewModel()
+                        )
+                    }
+                    composable("repositoryDetails") {
+                        Text("It is repository details")
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ListRepositoryView(listRepository: List<RepositoryModel>) {
-    LazyColumn {
-        items(listRepository) { repository -> ItemRepository(repositoryModel = repository) }
+fun ListRepositoryView(navController: NavController, repositoryListViewModel: RepositoryListViewModel) {
+    val listModels = repositoryListViewModel.listRepositoryData.observeAsState(emptyList())
+
+    if(listModels.value.isEmpty()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+            CircularProgressIndicator()
+        }
     }
-
-
+    LazyColumn {
+        items(listModels.value) { repository ->
+            ItemRepository(
+                repositoryModel = repository,
+                navController = navController
+            )
+        }
+    }
 }
 
 @Composable
-fun ItemRepository(repositoryModel: RepositoryModel) {
+fun ItemRepository(repositoryModel: RepositoryModel, navController: NavController) {
     var isExpanded by remember { mutableStateOf(false) }
     ForMasterClassTheme {
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable { isExpanded = !isExpanded }) {
+            .clickable { navController.navigate("repositoryDetails") }) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "Logo of repo",
@@ -65,7 +103,7 @@ fun ItemRepository(repositoryModel: RepositoryModel) {
                     text = repositoryModel.nameRepo,
                     color = MaterialTheme.colors.secondaryVariant,
                     style = MaterialTheme.typography.subtitle2,
-                    maxLines = if(isExpanded)  Int.MAX_VALUE else 1
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1
                 )
                 Spacer(Modifier.width(4.dp))
                 Surface(
@@ -95,7 +133,7 @@ fun ItemRepository(repositoryModel: RepositoryModel) {
 fun PreviewItemRepository() {
     ForMasterClassTheme {
         LazyColumn {
-            items(sampleData) { repository -> ItemRepository(repositoryModel = repository) }
+            items(sampleData) { repository -> ItemRepository(repositoryModel = repository, rememberNavController() ) }
         }
     }
 }
