@@ -3,42 +3,39 @@ package com.example.formasterclass.data
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.formasterclass.api
 import kotlinx.coroutines.*
-import java.util.concurrent.TimeUnit
 
 
-data class RepositoryModel(val author: String, val nameRepo: String)
-
-val sampleData = listOf(
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
-    RepositoryModel("Dmitry","Repository1"),
+data class RepositoryModel(
+    val id: Int,
+    val name: String,
+    val description: String,
+    val urlAvatar: String
 )
-class RepositoryListViewModel :ViewModel() {
+
+class RepositoryListViewModel : ViewModel() {
     private val listRepository: MutableLiveData<List<RepositoryModel>> = MutableLiveData()
     private val coroutineScope = CoroutineScope(Job() + Dispatchers.IO)
     val listRepositoryData: LiveData<List<RepositoryModel>> = listRepository
 
     init {
         coroutineScope.launch {
-            delay(3000)
-            launch(Dispatchers.Main) {
-                listRepository.value = sampleData
+            api.getRepository().map {
+                RepositoryModel(
+                    id = it.id,
+                    name = it.name ?: "",
+                    description = it.description ?: "",
+                    urlAvatar = it.owner.avatar_url
+                )
+            }.let {
+                launch(Dispatchers.Main) {
+                    listRepository.value = it
+                }
             }
+
+            delay(3000)
+
         }
 
     }

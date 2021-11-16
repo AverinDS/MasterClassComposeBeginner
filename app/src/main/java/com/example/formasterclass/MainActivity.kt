@@ -2,10 +2,8 @@ package com.example.formasterclass
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,8 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -25,7 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("repositoryDetails") {
-                        Text("It is repository details")
+                        RepositoryDetails()
                     }
                 }
             }
@@ -58,16 +56,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ListRepositoryView(navController: NavController, repositoryListViewModel: RepositoryListViewModel) {
+fun ListRepositoryView(
+    navController: NavController,
+    repositoryListViewModel: RepositoryListViewModel
+) {
     val listModels = repositoryListViewModel.listRepositoryData.observeAsState(emptyList())
 
-    if(listModels.value.isEmpty()) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+    if (listModels.value.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        ) {
             CircularProgressIndicator()
         }
     }
@@ -88,7 +90,7 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable { navController.navigate("repositoryDetails") }) {
+            .clickable { isExpanded = !isExpanded }) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "Logo of repo",
@@ -100,23 +102,25 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
             Spacer(Modifier.width(8.dp))
             Column {
                 Text(
-                    text = repositoryModel.nameRepo,
+                    text = repositoryModel.name,
                     color = MaterialTheme.colors.secondaryVariant,
                     style = MaterialTheme.typography.subtitle2,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1
                 )
                 Spacer(Modifier.width(4.dp))
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = 1.dp,
-                    modifier = Modifier.animateContentSize()
-                ) {
-                    Text(
-                        text = repositoryModel.author,
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.padding(all = 4.dp)
-
-                    )
+                Text(
+                    text = repositoryModel.description,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(all = 4.dp),
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1
+                )
+                if (isExpanded) {
+                    TextButton(
+                        onClick = { navController.navigate("repositoryDetails") },
+                        modifier = Modifier.wrapContentSize()
+                    ) {
+                        Text(text = "more", fontSize = 12.sp)
+                    }
                 }
             }
         }
@@ -133,7 +137,12 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
 fun PreviewItemRepository() {
     ForMasterClassTheme {
         LazyColumn {
-            items(sampleData) { repository -> ItemRepository(repositoryModel = repository, rememberNavController() ) }
+            items(sampleData) { repository ->
+                ItemRepository(
+                    repositoryModel = repository,
+                    rememberNavController()
+                )
+            }
         }
     }
 }
