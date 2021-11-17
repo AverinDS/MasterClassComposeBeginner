@@ -14,14 +14,61 @@ data class RepositoryModel(
     val urlAvatar: String
 )
 
+val sampleData = listOf(
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL"),
+    RepositoryModel(0, "test", "description", "URL")
+)
+
+data class RepositoryListState(
+    val isLoading: Boolean = false,
+    val isLastPageLoaded: Boolean = false,
+    val listRepository: List<RepositoryModel> = emptyList(),
+    var currentPage: Int = 0,
+    val exception: String? = null
+)
+
 class RepositoryListViewModel : ViewModel() {
-    private val listRepository: MutableLiveData<List<RepositoryModel>> = MutableLiveData()
+    private val state: MutableLiveData<RepositoryListState> = MutableLiveData()
+    val stateLiveData: LiveData<RepositoryListState> = state
     private val coroutineScope = CoroutineScope(Job() + Dispatchers.IO)
-    val listRepositoryData: LiveData<List<RepositoryModel>> = listRepository
+    private val handler = CoroutineExceptionHandler { _, exception ->
+        exception.printStackTrace()
+        state.value = getState().copy(isLoading = false, exception = exception.message)
+    }
 
     init {
-        coroutineScope.launch {
-            api.getRepository().map {
+        onNextPageLoad()
+    }
+
+    private fun getState(): RepositoryListState = state.value ?: RepositoryListState()
+
+    private fun onBeforeNextPageLoading() {
+        state.value = getState().copy(isLoading = true)
+    }
+
+    private fun onPageLoaded(listRepository: List<RepositoryModel>) {
+        state.value = getState().copy(
+            currentPage = getState().currentPage + 1,
+            isLoading = false,
+            listRepository = getState().listRepository.plus(listRepository),
+            isLastPageLoaded = listRepository.isEmpty()
+        )
+    }
+
+    fun onNextPageLoad() {
+        onBeforeNextPageLoading()
+        coroutineScope.launch(handler) {
+            api.getRepository(getState().currentPage + 1).map {
                 RepositoryModel(
                     id = it.id,
                     name = it.name ?: "",
@@ -30,13 +77,11 @@ class RepositoryListViewModel : ViewModel() {
                 )
             }.let {
                 launch(Dispatchers.Main) {
-                    listRepository.value = it
+                    onPageLoaded(it)
                 }
             }
-
-            delay(3000)
-
         }
-
     }
+
+
 }

@@ -7,6 +7,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 
 private const val BASE_URL = "https://api.github.com/"
@@ -36,6 +37,6 @@ val api = Retrofit.Builder()
 interface GitHubApi {
 
     @GET("/orgs/github/repos")
-    suspend fun getRepository() : List<RepositorySource>
+    suspend fun getRepository(@Query("page") page: Int = 1) : List<RepositorySource>
 
 }
