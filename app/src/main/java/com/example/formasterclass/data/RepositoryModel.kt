@@ -39,7 +39,7 @@ data class RepositoryListState(
 
 class RepositoryListViewModel : ViewModel() {
     private val state: MutableLiveData<RepositoryListState> = MutableLiveData()
-    val stateLiveData: LiveData<RepositoryListState> = state
+    var stateLiveData: LiveData<RepositoryListState> = state
     private val coroutineScope = CoroutineScope(Job() + Dispatchers.IO)
     private val handler = CoroutineExceptionHandler { _, exception ->
         exception.printStackTrace()

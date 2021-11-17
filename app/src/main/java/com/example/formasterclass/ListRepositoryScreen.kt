@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
@@ -135,15 +136,12 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
 @Preview
 @Composable
 fun PreviewItemRepository() {
-    ForMasterClassTheme {
-        LazyColumn {
-            items(sampleData) { repository ->
-                ItemRepository(
-                    repositoryModel = repository,
-                    rememberNavController()
-                )
-            }
-        }
-    }
+    ListRepositoryView(rememberNavController(), RepositoryListViewModel())
+}
+
+@Preview
+@Composable
+fun PreviewItemRepositoryLoading() {
+    ListRepositoryView(rememberNavController(), RepositoryListViewModel())
 }
 

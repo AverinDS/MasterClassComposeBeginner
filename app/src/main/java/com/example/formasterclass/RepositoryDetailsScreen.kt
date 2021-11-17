@@ -1,6 +1,5 @@
 package com.example.formasterclass
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -32,12 +31,7 @@ fun RepositoryDetails() {
 }
 
 
-@Preview(name = "Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "DarkMode"
-)
+@Preview
 @Composable
 fun PreviewRepositoryDetails() {
     RepositoryDetails()
