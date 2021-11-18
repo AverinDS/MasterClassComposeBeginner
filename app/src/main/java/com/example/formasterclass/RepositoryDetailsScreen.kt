@@ -1,32 +1,25 @@
 package com.example.formasterclass
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.formasterclass.data.RepositoryModel
 
 @Composable
-fun RepositoryDetails() {
-    Column(modifier = Modifier.padding(8.dp)) {
-        Row(
-            modifier = Modifier
-                .padding(0.dp, 16.dp, 0.dp, 16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Logo",
-                modifier = Modifier
-            )
-        }
-        Text("It is description for git repository ")
+fun RepositoryDetails(repositoryName: String) {
+    Column(modifier = Modifier
+        .padding(8.dp)
+        .fillMaxSize()) {
+        Text(
+            "You are on the page of detailed screen for repository $repositoryName",
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -34,5 +27,5 @@ fun RepositoryDetails() {
 @Preview
 @Composable
 fun PreviewRepositoryDetails() {
-    RepositoryDetails()
+    RepositoryDetails("Kek")
 }
