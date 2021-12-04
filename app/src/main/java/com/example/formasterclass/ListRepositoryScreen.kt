@@ -1,6 +1,5 @@
 package com.example.formasterclass
 
-import android.os.Bundle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
@@ -29,7 +27,6 @@ import com.example.formasterclass.data.RepositoryListState
 import com.example.formasterclass.data.RepositoryListViewModel
 import com.example.formasterclass.data.RepositoryModel
 import com.example.formasterclass.ui.theme.ForMasterClassTheme
-import com.google.gson.Gson
 
 
 @Composable
@@ -49,7 +46,7 @@ fun ListRepositoryView(
                 navController = navController
             )
             if (index == state.value.listRepository.lastIndex) {
-                PageLoadingCircularProgress()
+                CenterCircularProgress()
                 if (state.value.isLastPageLoaded.not()) {
                     repositoryListViewModel.onNextPageLoad()
                 }
@@ -57,34 +54,6 @@ fun ListRepositoryView(
         }
     }
 }
-
-@Composable
-fun CenterCircularProgress() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-
-@Composable
-fun PageLoadingCircularProgress() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
 
 @Composable
 fun ItemRepository(repositoryModel: RepositoryModel, navController: NavController) {
@@ -123,7 +92,7 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
                 if (isExpanded) {
                     TextButton(
                         onClick = {
-                          navController.navigate("${Screens.REPOSITORY_DETAILS}/${repositoryModel.name}")
+                            navController.navigate("${Screens.REPOSITORY_DETAILS}/${repositoryModel.name}")
                         },
                         modifier = Modifier.wrapContentSize()
                     ) {
@@ -138,7 +107,7 @@ fun ItemRepository(repositoryModel: RepositoryModel, navController: NavControlle
 @Preview
 @Composable
 fun PreviewItemRepository() {
-    ListRepositoryView(rememberNavController(), RepositoryListViewModel())
+    ItemRepository(RepositoryModel(0, "Name", "It is description",""), rememberNavController())
 }
 
 @Preview
